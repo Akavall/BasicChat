@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"> </script>
+
+  <meta charset="UTF-8">
+  <title> Document </title>
+</head>
+
+<body>
+<h1> Welcome! </h1>
+
+User Name: <input type="text" id="t1" /> <input type="button" onclick="setUserName()" value="Enter"><br>
+
+<br>
+
+Say: <input type="text" id="t2" /> <input type="button" onclick="send()" value="Enter"><br>
+
+Chat:
+<div id="chat">
+    0
+</div>
+
+
+<script type="text/javascript">
+function setUserName() {
+    var user_name = document.getElementById("t1").value;
+    window.user_name = user_name;
+    console.log(window.user_name);
+}
+</script>
+
+<script type="text/javascript">
+function send() {
+
+    var message = document.getElementById("t2").value;
+  
+    var hash_map = {};
+    hash_map["user_name"] = window.user_name;
+    hash_map["message"] = message;
+
+    var json_data = JSON.stringify(hash_map);
+
+    $.ajax({
+        type: 'POST',
+        url: "http://localhost:8000/send",
+        data: json_data,
+        success: function(data) { console.log("success"); },
+        contentType: "application/json",
+        dataType: 'json',
+    });
+     
+}
+</script>
+
+<script type="text/javascript">
+ (function() {
+    var poll = function() {
+       $.ajax({
+          url: 'http://localhost:8000/receive_all',
+          type: 'get',
+          success: function(data) {
+	     document.getElementById("chat").innerHTML = data;
+
+          }, 
+       });
+    };
+
+    setInterval(function() {
+       poll();
+    }, 200);
+ })();
+
+</script>
+
+</body>
+</html>
