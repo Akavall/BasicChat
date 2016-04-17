@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/ioutil"
 	"encoding/json"
-	"reflect"
 	"strings"
 )
 
@@ -83,7 +82,7 @@ func main() {
 	http.HandleFunc("/send", chat_window.send)
 	http.HandleFunc("/receive_all", chat_window.receive_all)
 
-	ip_address := "localhost:8000"
+	ip_address := "0.0.0.0:8090"
 	fmt.Println(ip_address)
 	
 	error := http.ListenAndServe(ip_address, nil)
