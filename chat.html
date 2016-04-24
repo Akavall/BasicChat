@@ -16,11 +16,9 @@ User Name: <input type="text" id="t1" /> <input type="button" onclick="setUserNa
 
 Say: <input type="text" id="t2" /> <input type="button" onclick="send()" value="Enter"><br>
 
-Chat:
-<div id="chat">
-    0
-</div>
+<br>
 
+<textarea id="chat"></textarea>
 
 <script type="text/javascript">
 function setUserName() {
@@ -60,7 +58,8 @@ function send() {
           url: 'http://localhost:8000/receive_all',
           type: 'get',
           success: function(data) {
-	     document.getElementById("chat").innerHTML = data;
+         
+	     document.getElementById("chat").value = data;
 
           }, 
        });
