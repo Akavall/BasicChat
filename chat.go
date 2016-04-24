@@ -1,20 +1,20 @@
-package main 
+package main
 
 import (
-	"text/template"
-	"net/http"
-	"log"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"encoding/json"
+	"log"
+	"net/http"
 	"strings"
+	"text/template"
 )
 
 type ChatWindow struct {
 	// Should be protected by Mutex
-	messages []string
-	user_name []string 
+	messages  []string
+	user_name []string
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +23,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = t.Execute(w, nil) 
+	err = t.Execute(w, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -39,13 +39,13 @@ func (cw *ChatWindow) send(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	err = r.Body.Close()
 	if err != nil {
 		panic(err)
 	}
 
-	message_info := map[string]string {}
+	message_info := map[string]string{}
 
 	err = json.Unmarshal(body, &message_info)
 	if err != nil {
@@ -64,27 +64,28 @@ func (cw *ChatWindow) send(w http.ResponseWriter, r *http.Request) {
 // Get request
 func (cw *ChatWindow) receive_all(w http.ResponseWriter, r *http.Request) {
 	var messages_str string
-	if len((*cw).messages) >= 10 {
-		messages_str = strings.Join((*cw).messages[len((*cw).messages) - 10 :], "<br>")
+	// We need to have some limit, to not crash
+	// the browser 
+	if len((*cw).messages) >= 1000 {
+		messages_str = strings.Join((*cw).messages[len((*cw).messages)-10:], "\n")
 	} else {
-		messages_str = strings.Join((*cw).messages, "<br>")
+		messages_str = strings.Join((*cw).messages, "\n")
 	}
 
 	fmt.Fprint(w, messages_str)
 }
 
-
 func main() {
 
-	chat_window := &ChatWindow {}
+	chat_window := &ChatWindow{}
 
 	http.HandleFunc("/chat", handler)
 	http.HandleFunc("/send", chat_window.send)
 	http.HandleFunc("/receive_all", chat_window.receive_all)
 
-	ip_address := "0.0.0.0:8090"
+	ip_address := "0.0.0.0:8000"
 	fmt.Println(ip_address)
-	
+
 	error := http.ListenAndServe(ip_address, nil)
 	if error != nil {
 		log.Fatalln(error)
